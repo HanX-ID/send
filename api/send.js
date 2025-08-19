@@ -1,10 +1,15 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end()
+
   const { name, message } = req.body
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown"
+
   const text = `\`\`\`
+🌐 IP: ${ip}
 👤 ${name}
 💬 ${message}
 \`\`\``
+
   try {
     const r = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
       method: "POST",
