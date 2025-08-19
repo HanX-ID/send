@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kirim pesan</title>
+  <style>
+    body { font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background:#fff; }
+    form { background:#f9f9f9; padding:25px; border-radius:16px; width:320px; display:flex; flex-direction:column; gap:15px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+    h2 { margin:0; font-size:20px; text-align:center; }
+    input, textarea, button { padding:12px; border-radius:10px; font-size:14px; }
+    input, textarea { border:1px solid #ddd; }
+    input:focus, textarea:focus { border:1px solid #000; outline:none; }
+    textarea { resize:none; height:100px; }
+    button { background:#000; color:#fff; border:none; font-weight:600; cursor:pointer; }
+    button:hover { background:#333; }
+  </style>
+</head>
+<body>
+  <form id="contact">
+    <h2>kirim pesan</h2>
+    <input type="text" id="name" placeholder="nama" required>
+    <textarea id="message" placeholder="pesan" required></textarea>
+    <button type="submit">kirim</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("contact")
+    form.addEventListener("submit", async e => {
+      e.preventDefault()
+      let data = JSON.parse(localStorage.getItem("msgLimit")) || {count:0,time:Date.now()}
+      if (Date.now() - data.time > 3600000) data = {count:0,time:Date.now()}
+      if (data.count >= 5) { alert("batas 5 pesan per jam"); return }
+      const name = document.getElementById("name").value
+      const message = document.getElementById("message").value
+      try {
+        let res = await fetch("/api/send", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({name,message})
+        })
+        if(res.ok){ alert("pesan terkirim"); form.reset(); data.count++; localStorage.setItem("msgLimit",JSON.stringify(data)) }
+        else alert("gagal kirim")
+      } catch { alert("error koneksi") }
+    })
+  </script>
+</body>
+</html>
