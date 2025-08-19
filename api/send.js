@@ -1,16 +1,23 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end()
   const { name, message } = req.body
-  const text = `📥 pesan baru\n\n👤 ${name}\n💬 ${message}\n🕒 ${new Date().toLocaleString("id-ID",{timeZone:"Asia/Jakarta"})}`
+  const text = `\`\`\`
+👤 ${name}
+💬 ${message}
+\`\`\``
   try {
-    let r = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({chat_id:process.env.CHAT_ID,text})
+    const r = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: process.env.CHAT_ID,
+        text,
+        parse_mode: "Markdown"
+      })
     })
-    if(r.ok) res.status(200).json({success:true})
-    else res.status(500).json({success:false})
+    if (r.ok) res.status(200).json({ success: true })
+    else res.status(500).json({ success: false })
   } catch {
-    res.status(500).json({success:false})
+    res.status(500).json({ success: false })
   }
 }
